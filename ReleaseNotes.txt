@@ -1,0 +1,22 @@
+1.1.0:
+---------------------
+Changes:
+- Object layers:
+  "Placement rarity" is now called "Placement density" and works in the opposite way. Bigger values means more objects.
+
+Fixes:
+- The icons will load even if you move the MassSpawner to another folder
+
+Improvements:
+- Documentation improvements
+- Better performance preview gizmos
+- Better labels for color group input fields (RGB/HSV instead of XYZ)
+
+Features:
+- URP Editor support:
+  You can now use this tool in URP projects as well
+
+
+1.0.0:
+---------------------
+  Initial version

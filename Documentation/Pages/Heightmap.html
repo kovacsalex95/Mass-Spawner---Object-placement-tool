@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Heightmap generation | Mass Spawner Documentation</title>
+        <meta charset="utf-8">
+        <meta name="description" content="Mass Spawner Documentation">
+        <meta name="author" content="Alex Kovács">
+        <link rel="stylesheet" href="../Assets/docs_style.css">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <h1 class="main-title">Heightmap generation</h1>
+            <div class="menu">
+                <a href="../Documentation.html">Getting Started</a>
+                <a href="Heightmap.html" class="current">Heightmap generation</a>
+                <a href="Layers.html">Spawn layers</a>
+                <a href="ColorGroups.html">Color groups</a>
+                <a href="mailto:kovacsalex95@gmail.com" target="_blank">@Support</a>
+            </div>
+            <div class="page">
+                <h2>Operating principle</h2>
+                <div>
+                    <ul>
+                        <li>The system creates textures to store elevation and slope data on them.</li>
+                        <li>Based on the size of the textures, it casts <strong>one ray per pixel</strong> downwards within the specified boundary.</li>
+                        <li>If a ray hits a selected layer, sampling is performed.</li>
+                        <li>If a ray finds an excluded layer, sampling is omitted.</li>
+                        <li>Using the stored textures, we are then able to place objects in the world based on height and slope.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="page">
+                <h2>Parameters</h2>
+                <div>
+                    <img src="../Images/3_2_heightmap.png" alt="heightmap" />
+                    <ul>
+                        <li><strong>Resolution</strong>: The sampling resolution of the textures. This also influences the raycast count, so big numbers can cause performance issues.</li>
+                        <li><strong>Terrain layers</strong>: Wich layers we want to <strong>include</strong> in our heightmap.</li>
+                        <li><strong>Exclude layers</strong>: Wich layers we <strong>dont want to include</strong> in our heightmap.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="page">
+                <h2>Auto mode</h2>
+                <div>
+                    If we enable <i>Auto mode</i>, the system will be automatically regenerating the heightmaps if any world or heightmap parameter changes.
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
