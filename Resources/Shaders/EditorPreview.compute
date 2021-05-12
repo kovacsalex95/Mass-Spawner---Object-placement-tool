@@ -1,0 +1,65 @@
+#pragma kernel CSLayer
+#pragma kernel CSHeightmap
+
+
+Texture2D <float4> Heightmap;
+
+
+RWTexture2D <float4> LayerResult;
+Texture2D <float4> SlopeMap;
+Texture2D <float4> PlacementMap;
+float2 HeightRange;
+float2 SlopeRange;
+bool ShowPlacement;
+
+float FloatInRange(float value, float2 range)
+{
+    if (value >= min(range.x, range.y) && value <= max(range.x, range.y))
+        return 1;
+
+    return 0;
+}
+
+[numthreads(8,8,1)]
+void CSLayer(uint3 id : SV_DispatchThreadID)
+{
+    float4 pixel = float4(0, 0, 0, 0);
+
+    float height = Heightmap[id.xy].r;
+    float alpha = Heightmap[id.xy].a;
+    float slope = SlopeMap[id.xy].r;
+
+    float show = FloatInRange(height, HeightRange) * FloatInRange(slope, SlopeRange);
+
+    float4 fade = lerp(float4(0, 0, 0, 0), float4(1, 1, 0, 0.6), show);
+
+    if (alpha > 0)
+        pixel = fade;
+    
+    if (ShowPlacement)
+    {
+        float placementRatio = 0;
+        if (alpha > 0)
+            placementRatio = 1;
+
+        placementRatio *= show;
+
+        float4 placement = clamp(float4(0, 0, 0, 0), PlacementMap[id.xy], placementRatio);
+
+        pixel = lerp(pixel, placement, placement.w);
+    }
+
+    LayerResult[id.xy] = pixel;
+}
+
+
+RWTexture2D <float4> HeightmapResult;
+
+[numthreads(8,8,1)]
+void CSHeightmap(uint3 id : SV_DispatchThreadID)
+{
+    float height = Heightmap[id.xy].r;
+    float alpha = Heightmap[id.xy].w;
+
+    HeightmapResult[id.xy] = lerp(float4(0.5, 0.5, 0.5, 0.8), float4(height, height, height, 1), alpha);
+}

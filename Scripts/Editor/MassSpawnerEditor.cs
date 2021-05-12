@@ -92,9 +92,6 @@ namespace lxkvcs
             if (selectedTab == -1)
                 selectedTab = spawner.terrainSplat != null ? TAB_LAYERS : TAB_HEIGHTMAP;
 
-            // Check GUI materials
-            spawner.CheckMaterials();
-
             // Spawner arrays check
             if (spawner.objectLayers == null)
                 spawner.objectLayers = new ObjectLayer[0];
@@ -174,21 +171,10 @@ namespace lxkvcs
                 previewTexture = spawner.terrain3D;
 
             if (previewTexture != null)
-                EditorGUI.DrawPreviewTexture(previewRect, previewTexture, spawner.previewMaterial, ScaleMode.ScaleToFit, 0);
+                GUI.DrawTexture(previewRect, spawner.GenerateHeightmapPreviewTexture(previewTexture), ScaleMode.ScaleToFit);
 
             if (spawner.terrainSplat != null && spawner.terrainSlope != null && spawner.selectedObjectLayerIndex != -1)
-            {
-                spawner.layerMaterial.SetTexture("_SlopeMap", spawner.terrainSlope);
-                spawner.layerMaterial.SetVector("_HeightRange", new Vector2(spawner.objectLayers[spawner.selectedObjectLayerIndex].from, spawner.objectLayers[spawner.selectedObjectLayerIndex].to));
-                spawner.layerMaterial.SetVector("_SlopeRange", new Vector2(spawner.objectLayers[spawner.selectedObjectLayerIndex].minSlope, spawner.objectLayers[spawner.selectedObjectLayerIndex].maxSlope));
-
-                Texture2D placementTexture = spawner.showPlacement ? spawner.objectLayers[spawner.selectedObjectLayerIndex].objectPlaces : null;
-                spawner.layerMaterial.SetTexture("_ObjectPlaces", placementTexture);
-
-                spawner.layerMaterial.SetFloat("_ShowPlacement", spawner.showPlacement && placementTexture != null ? 1 : 0);
-
-                EditorGUI.DrawPreviewTexture(previewRect, spawner.terrainSplat, spawner.layerMaterial, ScaleMode.ScaleToFit, 0);
-            }
+                GUI.DrawTexture(previewRect, spawner.GenerateLayerPreviewTexture(), ScaleMode.ScaleToFit);
 
             EditorGUILayout.Space(inspectorSize - (names.Length + 1) * iconsize);
 
@@ -527,8 +513,10 @@ namespace lxkvcs
 
                                         string oldPropertyName = spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].propertyName;
                                         string propertyName = EditorGUILayout.TextField(oldPropertyName);
-                                        if (propertyName != "")
-                                            spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].propertyName = propertyName;
+                                        if (propertyName == "")
+                                            propertyName = MassSpawner.isSRP ? "_BaseColor" : "_Color";
+
+                                        spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].propertyName = propertyName;
 
                                         if (spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].colorGroup != -1 && !spawner.colorGroupExists(spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].colorGroup))
                                             spawner.objectLayers[spawner.selectedObjectLayerIndex].prefabs[i].colors[c].colorGroup = -1;

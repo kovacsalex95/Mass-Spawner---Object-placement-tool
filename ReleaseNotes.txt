@@ -1,3 +1,16 @@
+1.2.0:
+---------------------
+Changes:
+- Layer's material coloring "name" property behaviour:
+  If you delete the name property, the script will fill up with the default shader's color property name.
+  This can be handy if you switch rendering pipeline after the layers created. You just need to clear the property name, and you will get the correct one!
+
+Features:
+- Render Pipeline independence:
+  Now the editor preview generated with a compute shader, so now this package is independent from the render pipeline.
+  You can use it with the Standard RP, or URP, HDRP. Even with a custom Render Pipeline!
+
+
 1.1.0:
 ---------------------
 Changes:

@@ -114,7 +114,6 @@ namespace lxkvcs
 
             GenerateTerrainSlope();
             GenerateObjectPoints();
-            Debug.Log(string.Format("update resolution: {0}", (int)splatResolution));
         }
 
         public void GenerateTerrainSlope()
@@ -579,37 +578,66 @@ namespace lxkvcs
             return centerCorner + new Vector3(absX, 0, absY);
         }
 
-        [System.NonSerialized]
-        public Material previewMaterial = null;
-        [System.NonSerialized]
-        public Material layerMaterial = null;
-
-        bool _isSRP = false;
         public static bool isSRP => GraphicsSettings.renderPipelineAsset != null;
 
-        public void CheckMaterials()
-        {
-            bool srp = isSRP;
-            bool pipelineUpdate = srp != _isSRP;
-            if (pipelineUpdate)
-                _isSRP = srp;
+        int generatedPreviewTexturesResolution = -1;
+        RenderTexture heightmapPreviewTexture = null;
+        RenderTexture layerPreviewTexture = null;
+        ComputeShader previewComputeShader = null;
 
-            if (previewMaterial == null || pipelineUpdate)
-                GeneratePreviewMaterial();
-            if (layerMaterial == null || pipelineUpdate)
-                GenerateLayerMaterial();
+        public RenderTexture GenerateHeightmapPreviewTexture(Texture2D heightmap)
+        {
+            CheckPreviewTextures();
+
+            int kernelIndex = previewComputeShader.FindKernel("CSHeightmap");
+
+            previewComputeShader.SetTexture(kernelIndex, "HeightmapResult", heightmapPreviewTexture);
+            previewComputeShader.SetTexture(kernelIndex, "Heightmap", heightmap);
+
+            previewComputeShader.Dispatch(kernelIndex, heightmapPreviewTexture.width / 8, heightmapPreviewTexture.height / 8, 1);
+
+            return heightmapPreviewTexture;
+        }
+        public RenderTexture GenerateLayerPreviewTexture()
+        {
+            CheckPreviewTextures();
+
+            int kernelIndex = previewComputeShader.FindKernel("CSLayer");
+
+            previewComputeShader.SetTexture(kernelIndex, "LayerResult", layerPreviewTexture);
+            previewComputeShader.SetTexture(kernelIndex, "Heightmap", terrainSplat);
+            previewComputeShader.SetTexture(kernelIndex, "SlopeMap", terrainSlope);
+            previewComputeShader.SetTexture(kernelIndex, "PlacementMap", objectLayers[selectedObjectLayerIndex].objectPlaces);
+            previewComputeShader.SetVector("HeightRange", new Vector4(objectLayers[selectedObjectLayerIndex].from, objectLayers[selectedObjectLayerIndex].to, 0, 0));
+            previewComputeShader.SetVector("SlopeRange", new Vector4(objectLayers[selectedObjectLayerIndex].minSlope, objectLayers[selectedObjectLayerIndex].maxSlope, 0, 0));
+            previewComputeShader.SetBool("ShowPlacement", showPlacement);
+
+            previewComputeShader.Dispatch(kernelIndex, heightmapPreviewTexture.width / 8, heightmapPreviewTexture.height / 8, 1);
+
+            return layerPreviewTexture;
+        }
+        void CheckPreviewTextures()
+        {
+            if (generatedPreviewTexturesResolution == (int)splatResolution && heightmapPreviewTexture != null && layerPreviewTexture != null && previewComputeShader != null)
+                return;
+
+            generatedPreviewTexturesResolution = (int)splatResolution;
+
+            heightmapPreviewTexture = new RenderTexture(generatedPreviewTexturesResolution, generatedPreviewTexturesResolution, 0, RenderTextureFormat.ARGB32);
+            heightmapPreviewTexture.enableRandomWrite = true;
+            heightmapPreviewTexture.filterMode = FilterMode.Trilinear;
+            heightmapPreviewTexture.wrapMode = TextureWrapMode.Clamp;
+            heightmapPreviewTexture.Create();
+
+            layerPreviewTexture = new RenderTexture(generatedPreviewTexturesResolution, generatedPreviewTexturesResolution, 0, RenderTextureFormat.ARGB32);
+            layerPreviewTexture.enableRandomWrite = true;
+            layerPreviewTexture.filterMode = FilterMode.Trilinear;
+            layerPreviewTexture.wrapMode = TextureWrapMode.Clamp;
+            layerPreviewTexture.Create();
+
+            previewComputeShader = (ComputeShader)Resources.Load("Shaders/EditorPreview");
         }
 
-        public void GeneratePreviewMaterial()
-        {
-            string shaderPath = GraphicsSettings.renderPipelineAsset != null ? "MassSpawner/HeightmapURP" : "MassSpawner/Heightmap";
-            previewMaterial = new Material(Shader.Find(shaderPath));
-        }
-        public void GenerateLayerMaterial()
-        {
-            string shaderPath = GraphicsSettings.renderPipelineAsset != null ? "MassSpawner/LayerURP" : "MassSpawner/Layer";
-            layerMaterial = new Material(Shader.Find(shaderPath));
-        }
 
         public static bool LayerIncluded(LayerMask mask, int layer)
         {
