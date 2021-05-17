@@ -1,0 +1,99 @@
+#pragma kernel CSMain
+#pragma kernel CSClear
+#include "SimplexNoise.compute"
+
+struct PlacementPoint
+{
+    float2 _point;
+    int _valid;
+};
+
+RWTexture2D<float4> PlacementMap;
+float TextureSize;
+float AngleOffset;
+float EveryN;
+float Organicity;
+
+RWStructuredBuffer<PlacementPoint> Points;
+
+bool InsideTexture(int2 position)
+{
+    return position.x >= 0 && position.y >= 0 && position.x < TextureSize && position.y < TextureSize;
+}
+
+void PutPixel(int x, int y, float4 color)
+{
+    int2 pos = int2(x, y);
+    if (InsideTexture(pos))
+        PlacementMap[pos.xy] = color;
+}
+
+void DrawCircle(float2 cxy, float r, float4 color)
+{
+    int x, y, px, nx, py, ny, d;
+
+    for (x = 0; x <= r; x++)
+    {
+        d = (int)ceil(sqrt(r * r - x * x));
+
+        for (y = 0; y <= d; y++)
+        {
+            px = cxy.x + x;
+            nx = cxy.x - x;
+            py = cxy.y + y;
+            ny = cxy.y - y;
+
+            PutPixel(px, py, color);
+            PutPixel(nx, py, color);
+            PutPixel(px, ny, color);
+            PutPixel(nx, ny, color);
+        }
+    }
+}
+
+float Radians(float degrees)
+{
+    return (3.14159 * degrees) / 180;
+}
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+
+    if ((id.x % EveryN < 2) && (id.y % EveryN < 2))
+    {
+        int placeId = (id.x / EveryN) + ((id.y / EveryN) * floor(TextureSize / EveryN));
+
+        float ratio = 512 / TextureSize;
+        float organicity = 0.1 / lerp(1, 10, Organicity);
+
+        float random = (snoise(id.xy * organicity * ratio) + 1) / 2;
+
+        float degree = lerp(0, 360, random);
+        float radians = Radians(degree);
+
+        float maxDistance = TextureSize * 0.03;
+        float distance = AngleOffset * maxDistance;
+
+        float2 offset = float2(round(sin(radians) * distance), round(cos(radians) * distance));
+
+        float2 placePoint = id.xy + offset;
+
+        if (InsideTexture(placePoint))
+        {
+            DrawCircle(placePoint, 2, float4(1, 0, 0, 1));
+
+            Points[placeId]._point = placePoint;
+            Points[placeId]._valid = 1;
+        }
+        else
+            Points[placeId]._valid = 0;
+    }
+}
+
+[numthreads(8, 8, 1)]
+void CSClear(uint3 id : SV_DispatchThreadID)
+{
+    PlacementMap[id.xy] = float4(0, 0, 0, 0);
+}
