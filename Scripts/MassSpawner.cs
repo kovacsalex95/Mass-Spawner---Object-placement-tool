@@ -62,6 +62,12 @@ namespace lxkvcs
         ComputeShader previewComputeShader = null;
         ComputeShader placementComputeShader = null;
 
+        public int selectedTab = -1;
+
+        public static int TAB_LAYERS = 1;
+        public static int TAB_COLORS = 2;
+        public static int TAB_WORLD_HEIGHTMAP = 0;
+
         public float previewScale = 1f;
         public float previewOffsetX = 0.5f;
         public float previewOffsetY = 0.5f;
@@ -527,16 +533,21 @@ namespace lxkvcs
             if (Application.isEditor && !Application.isPlaying)
             {
                 // World bounds
-                Vector3 worldCenter = transform.position + Vector3.up * ((terrainBottom + terrainTop) / 2f) + new Vector3(terrainOffset.x, 0, terrainOffset.y);
-                Vector3 worldSize = new Vector3(terrainSize.x, terrainTop - terrainBottom, terrainSize.y);
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireCube(worldCenter, worldSize);
+                if (selectedTab == TAB_WORLD_HEIGHTMAP)
+                {
+                    Vector3 worldCenter = transform.position + Vector3.up * ((terrainBottom + terrainTop) / 2f) + new Vector3(terrainOffset.x, 0, terrainOffset.y);
+                    Vector3 worldSize = new Vector3(terrainSize.x, terrainTop - terrainBottom, terrainSize.y);
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawWireCube(worldCenter, worldSize);
+                }
 
                 // Placement preview
+                if (selectedTab != TAB_LAYERS)
+                    return;
+
                 if (objectLayers == null || objectLayers.Length == 0 || !showPlacement || selectedObjectLayerIndex == -1 || terrainHeight == null || transform.childCount != 0)
                     return;
 
-                // Preview cubes
                 previewObjectLayer = objectLayers[selectedObjectLayerIndex];
                 if (previewObjectLayer.objectPoints == null || previewObjectLayer.objectPoints.Length == 0)
                 {
@@ -583,7 +594,7 @@ namespace lxkvcs
                     Vector3 posTop = HeightmapToWorld(prevX, prevY);
                     Vector3 pos = posTop + Vector3.down * heightRatio * (terrainTop - terrainBottom) + Offset.value;
 
-                    Gizmos.DrawCube(pos + Vector3.up * 1.5f, Vector3.one * 3);
+                    Gizmos.DrawCube(pos + Vector3.up * 1.5f, Vector3.one * 4);
                 }
             }
         }

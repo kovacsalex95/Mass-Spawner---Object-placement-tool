@@ -13,6 +13,12 @@ Improvements
 - Placement maps:
   The placement maps now generated with a compute shader for better performance (up to 10X).
 
+- Gizmos:
+  Now the gizmos only showen when needed to. (World bounds, Placement)
+
+- Icons:
+  Reworked button icons for better visibility in dark UI mode.
+
 Features:
 - Placement organicity:
   We have a new slider called "Placement organicity". This value can be changed to adjust how "organic" you want your placement to be.

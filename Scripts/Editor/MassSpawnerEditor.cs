@@ -27,20 +27,13 @@ namespace lxkvcs
 
         bool placeObjects = false;
 
-        const int TAB_LAYERS = 1;
-        const int TAB_COLORS = 2;
-        const int TAB_WORLD_HEIGHTMAP = 0;
-        int selectedTab = -1;
-
-        int iconsize = 40;
+        int iconsize = 50;
         int columnWidth = 100;
 
         string assetsFolder = "";
         string[] names = null;
         Texture2D[] icons = null;
         Texture2D objectIcon = null;
-        Texture2D upIcon = null;
-        Texture2D downIcon = null;
 
         float inspectorSize;
         Rect previewRect;
@@ -73,11 +66,6 @@ namespace lxkvcs
 
             // Color groups
             TabColorGroups();
-
-
-            // Update logic
-            UpdateSelectedObject();
-            UpdateSelectedColorGroup();
 
 
             // Do the placement
@@ -115,12 +103,6 @@ namespace lxkvcs
             if (objectIcon == null)
                 objectIcon = (Texture2D)AssetDatabase.LoadAssetAtPath(assetsFolder + "/Resources/Icons/icon_object.png", typeof(Texture2D));
 
-            if (upIcon == null)
-                upIcon = (Texture2D)AssetDatabase.LoadAssetAtPath(assetsFolder + "/Resources/Icons/icon_up.png", typeof(Texture2D));
-
-            if (downIcon == null)
-                downIcon = (Texture2D)AssetDatabase.LoadAssetAtPath(assetsFolder + "/Resources/Icons/icon_down.png", typeof(Texture2D));
-
 
             inspectorSize = EditorGUIUtility.currentViewWidth;
             float previewSize = inspectorSize - 120;
@@ -131,8 +113,8 @@ namespace lxkvcs
             inspectorSize = scaledSize;
 
 
-            if (selectedTab == -1)
-                selectedTab = spawner.terrainHeight != null ? TAB_LAYERS : TAB_WORLD_HEIGHTMAP;
+            if (spawner.selectedTab == -1)
+                spawner.selectedTab = spawner.terrainHeight != null ? MassSpawner.TAB_LAYERS : MassSpawner.TAB_WORLD_HEIGHTMAP;
 
 
             if (spawner.objectLayers == null)
@@ -182,10 +164,20 @@ namespace lxkvcs
             GUI.Label(new Rect(20, 40, 120, 20), labels[(int)spawner.preview]);
             spawner.preview = (PreviewMode)GUILayout.SelectionGrid((int)spawner.preview, icons, 1, GUILayout.Width(iconsize));
 
+            EditorGUI.BeginDisabledGroup(spawner.transform.childCount != 0);
+
             if (spawner.selectedObjectLayerIndex != -1)
+            {
+                bool oldShow = spawner.showPlacement;
                 spawner.showPlacement = GUILayout.Toggle(spawner.showPlacement, objectIcon, "Button", GUILayout.Height(iconsize), GUILayout.Width(iconsize));
+
+                if (oldShow != spawner.showPlacement)
+                    SceneView.RepaintAll();
+            }
             else
                 EditorGUILayout.Space(iconsize + 4);
+
+            EditorGUI.EndDisabledGroup();
         }
 
         void PreviewRender()
@@ -236,16 +228,20 @@ namespace lxkvcs
 
         void TabModeSelector()
         {
-            selectedTab = GUILayout.Toolbar(selectedTab, new string[] {
+            int oldSelected = spawner.selectedTab;
+            spawner.selectedTab = GUILayout.Toolbar(spawner.selectedTab, new string[] {
                 "World & Heightmap",
                 string.Format("Layers({0}) & Objects", spawner.objectLayers.Length),
                 string.Format("Color groups ({0})", spawner.colorGroups.Length)
             });
+
+            if (oldSelected != spawner.selectedTab)
+                SceneView.RepaintAll();
         }
 
         void TabWorldAndHeightmap()
         {
-            if (selectedTab != TAB_WORLD_HEIGHTMAP)
+            if (spawner.selectedTab != MassSpawner.TAB_WORLD_HEIGHTMAP)
                 return;
 
             spawner.terrainTop = EditorGUILayout.FloatField("Top", spawner.terrainTop);
@@ -271,7 +267,7 @@ namespace lxkvcs
 
         void TabObjectLayers()
         {
-            if (selectedTab != TAB_LAYERS)
+            if (spawner.selectedTab != MassSpawner.TAB_LAYERS)
                 return;
 
             // Update & Delete objects buttons
@@ -295,6 +291,8 @@ namespace lxkvcs
             EditorGUILayout.BeginHorizontal();
 
             // Layer selector
+            int oldSelectedLayer = spawner.selectedObjectLayerIndex;
+
             EditorGUILayout.BeginVertical();
             int index = 0;
             foreach (ObjectLayer objectLayer in spawner.objectLayers)
@@ -315,6 +313,11 @@ namespace lxkvcs
             TabObjectLayersSettings();
 
             EditorGUILayout.EndHorizontal();
+
+            UpdateSelectedObject();
+
+            if (oldSelectedLayer != spawner.selectedObjectLayerIndex)
+                SceneView.RepaintAll();
         }
 
         void TabObjectLayersSettings()
@@ -331,9 +334,9 @@ namespace lxkvcs
                 // Move, Duplicate & Remove buttons
                 EditorGUILayout.BeginHorizontal();
 
-                if (GUILayout.Button(upIcon, GUILayout.Width(24)))
+                if (GUILayout.Button("↑", GUILayout.Width(24)))
                     move_up = true;
-                if (GUILayout.Button(downIcon, GUILayout.Width(24)))
+                if (GUILayout.Button("↓", GUILayout.Width(24)))
                     move_down = true;
                 if (GUILayout.Button("Duplicate layer"))
                     duplicate = true;
@@ -412,9 +415,9 @@ namespace lxkvcs
 
                         GUILayout.BeginHorizontal();
 
-                        if (GUILayout.Button(upIcon, GUILayout.Width(24)))
+                        if (GUILayout.Button("↑", GUILayout.Width(24)))
                             spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleUp(i);
-                        if (GUILayout.Button(downIcon, GUILayout.Width(24)))
+                        if (GUILayout.Button("↓", GUILayout.Width(24)))
                             spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleDown(i);
 
                         if (GUILayout.Button("Delete rule"))
@@ -583,7 +586,7 @@ namespace lxkvcs
 
         void TabColorGroups()
         {
-            if (selectedTab != TAB_COLORS)
+            if (spawner.selectedTab != MassSpawner.TAB_COLORS)
                 return;
 
             EditorGUILayout.BeginHorizontal();
@@ -609,6 +612,8 @@ namespace lxkvcs
             TabColorGroupsSettings();
 
             EditorGUILayout.EndHorizontal();
+
+            UpdateSelectedColorGroup();
         }
 
         void TabColorGroupsSettings()
