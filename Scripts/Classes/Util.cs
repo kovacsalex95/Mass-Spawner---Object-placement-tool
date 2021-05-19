@@ -119,6 +119,11 @@ namespace lxkvcs
             }
         }
 
+        public static bool AssetExists(string path)
+        {
+            return AssetDatabase.GetMainAssetTypeAtPath(path) != null;
+        }
+
         public static int PlacementPointCount(int resolution, int everyN)
         {
             int result = 0;

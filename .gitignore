@@ -60,3 +60,5 @@ crashlytics-build.properties
 
 *.meta
 *.unity
+
+generatedMaps.asset

@@ -20,8 +20,7 @@ using UnityEditorInternal;
 
 namespace lxkvcs
 {
-    [CustomEditor(typeof(MassSpawner))]
-    public class MassSpawnerEditor : Editor
+    public class MassSpawnerEditor : EditorWindow
     {
         MassSpawner spawner;
 
@@ -38,14 +37,33 @@ namespace lxkvcs
         float inspectorSize;
         Rect previewRect;
 
-
-        private void Awake()
+        static MassSpawner target
         {
-            spawner = target as MassSpawner;
+            get
+            {
+                MassSpawner spawner = GameObject.FindObjectOfType<MassSpawner>();
+                if (spawner == null)
+                {
+                    GameObject newObject = new GameObject("Mass Spawner");
+                    newObject.transform.position = Vector3.zero;
+
+                    return newObject.AddComponent<MassSpawner>();
+                }
+                return spawner;
+            }
         }
 
+        [MenuItem("Tools/Mass Spawner")]
+        static void Init()
+        {
+            // Get existing open window or if none, make a new one:
+            MassSpawnerEditor window = (MassSpawnerEditor)EditorWindow.GetWindow(typeof(MassSpawnerEditor));
+            window.Show();
 
-        public override void OnInspectorGUI()
+            window.spawner = target;
+        }
+
+        public void OnGUI()
         {
             // variables
             CheckVariables();
@@ -123,6 +141,10 @@ namespace lxkvcs
                 spawner.colorGroups = new ColorGroup[0];
 
 
+            if ((spawner.terrainHeight == null || spawner.terrainSlope == null || spawner.terrain3D == null) && !spawner.mapsChecked)
+                spawner.TryToLoadSavedMaps();
+
+
             if (spawner.selectedObjectLayerIndex != -1 && spawner.objectLayers[spawner.selectedObjectLayerIndex].objectPlaces == null)
                 spawner.GenerateObjectPoints(spawner.objectLayers[spawner.selectedObjectLayerIndex]);
         }
@@ -161,10 +183,8 @@ namespace lxkvcs
                 "Stylized 3D"
             };
 
-            GUI.Label(new Rect(20, 40, 120, 20), labels[(int)spawner.preview]);
+            GUI.Label(new Rect(20, 40, 130, 20), labels[(int)spawner.preview]);
             spawner.preview = (PreviewMode)GUILayout.SelectionGrid((int)spawner.preview, icons, 1, GUILayout.Width(iconsize));
-
-            EditorGUI.BeginDisabledGroup(spawner.transform.childCount != 0);
 
             if (spawner.selectedObjectLayerIndex != -1)
             {
@@ -176,8 +196,6 @@ namespace lxkvcs
             }
             else
                 EditorGUILayout.Space(iconsize + 4);
-
-            EditorGUI.EndDisabledGroup();
         }
 
         void PreviewRender()
@@ -206,7 +224,20 @@ namespace lxkvcs
 
             GUI.EndClip();
 
+            Matrix4x4 matrixBackup = GUI.matrix;
+
+            Rect labelRect = new Rect(10, previewRect.y + (names.Length + 1) * iconsize + 10, 40, 20);
+            GUIUtility.RotateAroundPivot(90, new Vector2(labelRect.x + labelRect.width / 2, labelRect.y + labelRect.height / 2));
+            GUI.Label(labelRect, "Zoom");
+            GUI.matrix = matrixBackup;
+
+            float oldScale = spawner.previewScale;
             spawner.previewScale = GUI.VerticalSlider(new Rect(40, previewRect.y + (names.Length + 1) * iconsize, 30, inspectorSize - (names.Length + 1) * iconsize), spawner.previewScale, 1f, 3f);
+
+            if (spawner.previewScale != oldScale && spawner.previewScale == 1f)
+            {
+                spawner.previewOffsetX = spawner.previewOffsetY = 0.5f;
+            }
 
             EditorGUI.BeginDisabledGroup(spawner.previewScale == 1);
 
@@ -215,16 +246,29 @@ namespace lxkvcs
 
             EditorGUI.EndDisabledGroup();
 
-            if (GUI.Button(new Rect(EditorGUIUtility.currentViewWidth - 50, previewRect.y + previewRect.height, 30, 30), "○"))
+            EditorGUI.BeginDisabledGroup(spawner.previewScale == 1 && spawner.previewOffsetX == 0.5f && spawner.previewOffsetY == 0.5f);
+
+            if (GUI.Button(new Rect(EditorGUIUtility.currentViewWidth - 50, previewRect.y + previewRect.height, 30, 30), "1:1"))
             {
                 spawner.previewScale = 1f;
                 spawner.previewOffsetX = 0.5f;
                 spawner.previewOffsetY = 0.5f;
             }
 
+            EditorGUI.EndDisabledGroup();
+
 
             EditorGUILayout.Space(inspectorSize - (names.Length + 1) * iconsize + 30);
+
+            Event mouseEvent = Event.current;
+            switch(mouseEvent.type)
+            {
+                case EventType.MouseMove: Debug.Log("Mouse move"); break;
+                case EventType.MouseDown: if (clipRect.Contains(mouseEvent.mousePosition)) { previewPan = true; } break;
+                case EventType.MouseUp: previewPan = false; break;
+            }
         }
+        bool previewPan = false;
 
         void TabModeSelector()
         {
@@ -260,7 +304,10 @@ namespace lxkvcs
             EditorGUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Generate heightmap"))
+            {
                 spawner.GenerateHeightmap();
+                spawner.selectedTab = MassSpawner.TAB_LAYERS;
+            }
 
             EditorGUILayout.EndHorizontal();
         }

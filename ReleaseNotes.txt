@@ -6,6 +6,14 @@ Changes:
   The "Layers" tab is now called "Layers & Objects", and it contains now the placement commands and the heightmap preview.
   The "Place/Update objects" and "Delete objects" button only visible in the "Layers & Objects" tab.
 
+Fixes:
+- Heightmaps stored correctly:
+  Earlier the generated maps (height, steepness, stylized) got discarded when the you close the editor.
+  From now on, the maps saved into the Asset's folder (as "generatedMaps"), and the editor load them from this asset when you start the editor.
+
+- Layer duplication:
+  Now the layer duplication is working perfectly, without unwanted reference chaining or data loss.
+
 Improvements
 - Overall Editor performace:
   The Editor script got a lot of optimization, now the editor is blazing fast.
@@ -28,7 +36,7 @@ Features:
   with the cost of disabled coloring options.
 
 - Heightmap preview:
-  You can zoom now an pan the preview now.
+  You can zoom an pan the preview now.
 
 
 1.2.0:

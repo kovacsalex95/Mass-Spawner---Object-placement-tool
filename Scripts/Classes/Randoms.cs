@@ -16,6 +16,17 @@ namespace lxkvcs
         public float value => random && min != max ? Random.Range(min, max) : min;
         public float avarage => random && min != max ? (min + max) / 2 : min;
 
+        public RandomBetween()
+        {
+
+        }
+        public RandomBetween(RandomBetween from)
+        {
+            min = from.min;
+            max = from.max;
+            random = from.random;
+        }
+
         public static RandomBetween InputGUI(RandomBetween source, int mode = 0, bool disabled = false)
         {
             RandomBetween result = source;
@@ -68,6 +79,21 @@ namespace lxkvcs
             x = new RandomBetween();
             y = new RandomBetween();
             z = new RandomBetween();
+        }
+        public RandomVector3(RandomVector3 from)
+        {
+            x = new RandomBetween(from.x);
+            y = new RandomBetween(from.y);
+            z = new RandomBetween(from.z);
+            _override = from._override;
+            xMode = from.xMode;
+            yMode = from.yMode;
+            zMode = from.zMode;
+
+            min = from.min;
+            max = from.max;
+            clamp = from.clamp;
+            whole = from.whole;
         }
 
         public Vector3 avarage

@@ -22,6 +22,25 @@ namespace lxkvcs
         public MaterialColoring[] colors = null;
         public bool coloring = false;
 
+        public PlaceObject()
+        {
+
+        }
+        public PlaceObject(PlaceObject from)
+        {
+            prefab = from.prefab;
+            _position = new RandomVector3(from._position);
+            _rotation = new RandomVector3(from._rotation);
+            _scale = new RandomVector3(from._scale);
+            transform = from.transform;
+            coloring = from.coloring;
+            colors = new MaterialColoring[from.colors.Length];
+            for (int i = 0; i < colors.Length; i++)
+            {
+                colors[i] = new MaterialColoring(from.colors[i]);
+            }
+        }
+
         public void AddColoring()
         {
             MaterialColoring coloring = new MaterialColoring(Util.ProjectIsSRP);
@@ -63,6 +82,19 @@ namespace lxkvcs
         public LayerMask layerMask;
         public float radius = 1f;
         public bool stop = false;
+
+        public CollisionRule()
+        {
+
+        }
+
+        public CollisionRule(CollisionRule from)
+        {
+            mode = from.mode;
+            layerMask = from.layerMask;
+            radius = from.radius;
+            stop = from.stop;
+        }
     }
 
     [System.Serializable]
@@ -81,7 +113,6 @@ namespace lxkvcs
         public float smoothing = 0f;
 
         public PlaceObject[] prefabs = null;
-        public int[] treeObjects = null;
 
         public PlaceType placing = PlaceType.Instantiate;
 
@@ -118,19 +149,27 @@ namespace lxkvcs
             minSlope = target.minSlope;
             maxSlope = target.maxSlope;
             smoothing = target.smoothing;
-            prefabs = target.prefabs;
-            treeObjects = target.treeObjects;
             placing = target.placing;
-            _position = target._position;
-            _rotation = target._rotation;
-            _rotation.min = 0;
-            _rotation.max = 360;
-            _rotation.clamp = true;
-            _scale = target._scale;
             objectPlaces = target.objectPlaces;
             everyN = target.everyN;
             angleOffset = target.angleOffset;
-            collisionRules = target.collisionRules;
+            organicity = target.organicity;
+            minDistance = target.minDistance;
+
+            _position = target._position;
+            _rotation = target._rotation;
+            _scale = target._scale;
+
+            prefabs = new PlaceObject[target.prefabs.Length];
+            for (int i = 0; i < prefabs.Length; i++)
+            {
+                prefabs[i] = new PlaceObject(target.prefabs[i]);
+            }
+            collisionRules = new CollisionRule[target.collisionRules.Length];
+            for (int i=0; i < collisionRules.Length; i++)
+            {
+                collisionRules[i] = new CollisionRule(target.collisionRules[i]);
+            }
         }
 
         public PlaceObject[] okPrefabs
@@ -160,26 +199,10 @@ namespace lxkvcs
             }
         }
 
-        public int[] okTreeObjects
-        {
-            get
-            {
-                List<int> result = new List<int>();
-                foreach (int obj in treeObjects)
-                {
-                    if (obj != -1)
-                        result.Add(obj);
-                }
-                return result.ToArray();
-            }
-        }
-
         public void CheckArrays()
         {
             if (prefabs == null)
                 prefabs = new PlaceObject[0];
-            if (treeObjects == null)
-                treeObjects = new int[0];
             if (collisionRules == null)
                 collisionRules = new CollisionRule[0];
         }
@@ -273,30 +296,6 @@ namespace lxkvcs
                     newList.Add(prefabs[i]);
             }
             prefabs = newList.ToArray();
-        }
-        public void AddTreeObject()
-        {
-            AddTreeObject(-1);
-        }
-        public void AddTreeObject(int treeObject)
-        {
-            int[] oldTrees = treeObjects;
-            treeObjects = new int[oldTrees.Length + 1];
-            for (int i = 0; i < oldTrees.Length; i++)
-            {
-                treeObjects[i] = oldTrees[i];
-            }
-            treeObjects[oldTrees.Length] = treeObject;
-        }
-        public void RemoveTreeObject(int index)
-        {
-            List<int> newList = new List<int>();
-            for (int i = 0; i < treeObjects.Length; i++)
-            {
-                if (i != index)
-                    newList.Add(treeObjects[i]);
-            }
-            treeObjects = newList.ToArray();
         }
     }
 

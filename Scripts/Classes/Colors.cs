@@ -124,5 +124,12 @@ namespace lxkvcs
         {
             propertyName = isSrp ? "_BaseColor" : "_Color";
         }
+
+        public MaterialColoring(MaterialColoring from)
+        {
+            material = from.material;
+            propertyName = from.propertyName;
+            colorGroup = from.colorGroup;
+        }
     }
 }

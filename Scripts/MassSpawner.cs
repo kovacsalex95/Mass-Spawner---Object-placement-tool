@@ -73,6 +73,9 @@ namespace lxkvcs
         public float previewOffsetY = 0.5f;
 
 
+        [System.NonSerialized]
+        public bool mapsChecked = false;
+
 
         // HEIGHTMAP
         public void GenerateHeightmap()
@@ -109,6 +112,8 @@ namespace lxkvcs
             }
 
             GenerateTerrainSlope();
+            SaveMapsToTextureArray();
+
             GenerateObjectPoints();
         }
 
@@ -222,6 +227,52 @@ namespace lxkvcs
 
 
 
+        // MAPS SAVING
+        void SaveMapsToTextureArray()
+        {
+            Texture2DArray mapsArray = new Texture2DArray((int)heightmapResolution, (int)heightmapResolution, 3, TextureFormat.RGBAFloat, false);
+
+            mapsArray.SetPixels(terrainHeight.GetPixels(), 0);
+            mapsArray.SetPixels(terrainSlope.GetPixels(), 1);
+            mapsArray.SetPixels(terrain3D.GetPixels(), 2);
+
+            mapsArray.Apply();
+
+            AssetDatabase.CreateAsset(mapsArray, Util.AssetFolder + "/generatedMaps.asset");
+        }
+
+        public void TryToLoadSavedMaps()
+        {
+            mapsChecked = true;
+
+            string path = Util.AssetFolder + "/generatedMaps.asset";
+
+            if (!Util.AssetExists(path))
+                return;
+
+            Texture2DArray mapsArray = (Texture2DArray)AssetDatabase.LoadAssetAtPath(path, typeof(Texture2DArray));
+
+            terrainHeight = null;
+            terrainSlope = null;
+            terrain3D = null;
+
+            terrainHeight = new Texture2D(mapsArray.width, mapsArray.height, TextureFormat.RGBAFloat, false);
+            terrainHeight.SetPixels(mapsArray.GetPixels(0));
+            terrainHeight.Apply();
+
+            terrainSlope = new Texture2D(mapsArray.width, mapsArray.height, TextureFormat.RGBAFloat, false);
+            terrainSlope.SetPixels(mapsArray.GetPixels(1));
+            terrainSlope.Apply();
+
+            terrain3D = new Texture2D(mapsArray.width, mapsArray.height, TextureFormat.RGBAFloat, false);
+            terrain3D.SetPixels(mapsArray.GetPixels(2));
+            terrain3D.Apply();
+
+            SceneView.RepaintAll();
+        }
+
+
+
         // OBJECTS
         public void GenerateObjectPoints()
         {
@@ -236,7 +287,8 @@ namespace lxkvcs
             if (terrainHeight == null)
                 return;
 
-            Texture2D measureTexture = terrainHeight;
+            if (placementComputeShader == null)
+                CheckPreviewTextures();
 
             int placePointsCount = Util.PlacementPointCount((int)heightmapResolution, layer.everyN);
             PlacementPoint[] placePoints = new PlacementPoint[placePointsCount];
@@ -455,6 +507,7 @@ namespace lxkvcs
         {
             return colorGroups == null || colorGroups.Length == 0 ? false : (index >= 0 && index < colorGroups.Length);
         }
+
 
 
         // PREVIEW
