@@ -116,7 +116,6 @@ namespace lxkvcs
 
         public PlaceType placing = PlaceType.Instantiate;
 
-        public bool _transform = false;
         public RandomVector3 _position;
         public RandomVector3 _rotation;
         public RandomVector3 _scale;
@@ -128,7 +127,6 @@ namespace lxkvcs
         public float organicity = 0.5f;
         public float minDistance = 0.5f;
 
-        public bool _collision = false;
         public CollisionRule[] collisionRules = null;
 
         public ObjectLayer()

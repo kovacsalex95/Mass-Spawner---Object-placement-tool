@@ -63,10 +63,16 @@ namespace lxkvcs
         ComputeShader placementComputeShader = null;
 
         public int selectedTab = -1;
+        public int selectedSettingsTab = -1;
 
         public static int TAB_LAYERS = 1;
         public static int TAB_COLORS = 2;
         public static int TAB_WORLD_HEIGHTMAP = 0;
+
+        public static int STAB_PLACEMENT = 0;
+        public static int STAB_TRANSFORM = 1;
+        public static int STAB_COLLISION = 2;
+        public static int STAB_PREFABS = 3;
 
         public float previewScale = 1f;
         public float previewOffsetX = 0.5f;

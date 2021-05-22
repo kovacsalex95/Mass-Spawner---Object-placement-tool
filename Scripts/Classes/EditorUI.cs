@@ -8,9 +8,14 @@ namespace lxkvcs
 {
     public class EditorUI
     {
-        public static bool ToggleButton(string title, bool source, string _default = "Button", int width = 100, int height = 24)
+        public static bool ToggleButton(string title, bool source, string _default = "Button", int width = 0, int height = 24)
         {
-            return GUILayout.Toggle(source, StringDefault(title, _default), "Button", GUILayout.Height(height), GUILayout.Width(width));
+            if (width > 0)
+                return GUILayout.Toggle(source, StringDefault(title, _default), "Button", GUILayout.Height(height), GUILayout.Width(width));
+            else if (width < 0)
+                return GUILayout.Toggle(source, StringDefault(title, _default), "Button", GUILayout.Height(height), GUILayout.MaxWidth(-width));
+            else
+                return GUILayout.Toggle(source, StringDefault(title, _default), "Button", GUILayout.Height(height));
         }
 
         public static string StringMaxLength(string source, int length = 10)
