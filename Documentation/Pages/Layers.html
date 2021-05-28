@@ -16,6 +16,7 @@
                 <a href="Heightmap.html">Heightmap generation</a>
                 <a href="Layers.html" class="current">Spawn layers</a>
                 <a href="ColorGroups.html">Color groups</a>
+                <a href="https://lxkvcs.hu" target="_blank">@Website</a>
                 <a href="mailto:kovacsalex95@gmail.com" target="_blank">@Support</a>
             </div>
             <div class="page">
@@ -40,7 +41,7 @@
                     <img src="../Images/11_layers_overview.png" alt="layers overview"/>
                     <ul>
                         <li>
-                            <strong>#1</strong>: Here you can add new layers, and select your created ones.</br>The <strong>selected</strong> layer's preview can be seen on the top of the window, and its settings in the right side (<strong>#5</strong>)</br>The <strong>selected</strong> layer's position preview only showen <strong>if the <i>Object Preview</i> button is pressed</strong>
+                            <strong>#1</strong>: Here you select your created ones.</br>The <strong>selected</strong> layer's preview can be seen on the top of the window, and its settings in the right side (<strong>#5</strong>)</br>The <strong>selected</strong> layer's position preview only showen <strong>if the <i>Object Preview</i> button is pressed</strong>
                             <img src="../Images/6_layer_preview.png" alt="scene view preview" />
                         </li>
                         <li><strong>#2</strong>: You can reorder your layers with this arrow buttons</li>
@@ -58,8 +59,9 @@
                         <li><strong>Name</strong>: The name of the prefab layer. This can be anything.</li>
                         <li><strong>Terrain height</strong>: In wich height range we want to spawn objects</li>
                         <li><strong>Terrain slope</strong>: In wich steepness range we want to spawn objects</li>
-                        <li><strong>Placement density</strong>: This number represents how many objects we want to instantiate.</br>The formula is <i>30-DENSITY = N</i>, where <i>N</i> is the steps between the heightmap's pixels. Every <i>N</i> pixel is a spawn place.</li>
-                        <li><strong>Placement chaotics</strong>: This number represents the chaos level between points. The bigger the value, the more chaotic the results.</li>
+                        <li><strong>Density</strong>: This number represents how many objects we want to instantiate.</li>
+                        <li><strong>Chaotics</strong>: This number represents the chaos level between points. The bigger the value, the more chaotic the results.</li>
+                        <li><strong>Organicity</strong>: This number represents how organic your placement going to be.</li>
                     </ul>
                 </div>
             </div>
@@ -68,11 +70,16 @@
                 <div>
                     <img src="../Images/8_layer_objects.png" alt="object options"/>
                     <ul>
+                        <li><strong>Placement method</strong>: Here you can select from two modes:</li>
+                        <ul class="sub">
+                            <li><strong>Instantiate</strong>: This is the old one, when the objects is just instantiated without prefab connection. <strong>(recommended)</strong></li>
+                            <li><strong>Prefab</strong>: This is the new one, when the objects created with prefab connection.<strong>(colorization options is disabled)</strong></li>
+                        </ul>
+                        <li><strong>#5</strong>: Here you can add more prefabs to the selected layer</li>
                         <li><strong>#1</strong>: Here you can select a <i>Prefab GameObject</i> what you want to assign to this layer</li>
                         <li><strong>#2</strong>: Here you can delete this object from the current layer</li>
                         <li><strong>#3</strong>: With the per-object transform you can manipulate the prefab's offset, rotation, and scale</br>regardless of the main layer <a href="#transform">transform settings</a></li>
                         <li id="colorgroups"><strong>#4</strong>: Here you can select a <i>Material</i> that gonna be colored with the selected color group if its can be found in your prefab, and the color parameter of the material's <i>Shader</i> given correctly. You can add multiple <i>Material</i> to the selected object with independent color groups if you want to.</li>
-                        <li><strong>#5</strong>: Here you can add more prefabs to the selected layer</li>
                     </ul>
                 </div>
             </div>
@@ -108,5 +115,6 @@
                 </div>
             </div>
         </div>
+        <label class="credits">MassSpawner | Created by <a href="https://lxkvcs.hu">Alex Kovács</a></label>
     </body>
 </html>

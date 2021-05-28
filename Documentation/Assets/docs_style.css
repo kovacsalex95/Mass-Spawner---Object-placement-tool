@@ -79,6 +79,9 @@ h2 {
 ul {
     padding-left: 20px;
     line-height: 1.1em;
+}
+
+ul:not(.sub) {
     margin-top: 10px;
 }
 

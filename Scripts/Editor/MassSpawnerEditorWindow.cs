@@ -551,7 +551,7 @@ namespace lxkvcs
             float angleOffset = spawner.objectLayers[spawner.selectedObjectLayerIndex].angleOffset;
             float organicity = spawner.objectLayers[spawner.selectedObjectLayerIndex].organicity;
             spawner.objectLayers[spawner.selectedObjectLayerIndex].everyN = 30 - EditorGUILayout.IntSlider("Density", 30 - spawner.objectLayers[spawner.selectedObjectLayerIndex].everyN, 0, 27);
-            spawner.objectLayers[spawner.selectedObjectLayerIndex].angleOffset = EditorGUILayout.Slider("Chatotics", spawner.objectLayers[spawner.selectedObjectLayerIndex].angleOffset, 0, 1);
+            spawner.objectLayers[spawner.selectedObjectLayerIndex].angleOffset = EditorGUILayout.Slider("Chaotics", spawner.objectLayers[spawner.selectedObjectLayerIndex].angleOffset, 0, 1);
             spawner.objectLayers[spawner.selectedObjectLayerIndex].organicity = EditorGUILayout.Slider("Organicity", spawner.objectLayers[spawner.selectedObjectLayerIndex].organicity, 0, 1);
 
             if (everyN != spawner.objectLayers[spawner.selectedObjectLayerIndex].everyN ||
