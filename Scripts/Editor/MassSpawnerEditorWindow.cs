@@ -373,7 +373,7 @@ namespace lxkvcs
 
             if (isTabsTop)
             {
-                int layersHeight = Mathf.Min(spawner.objectLayers.Length * 26 + 40, 4 * 26 + 40);
+                int layersHeight = Mathf.Min(spawner.objectLayers.Length * 28 + 40, 4 * 28 + 40);
 
                 settingsLayersArea = new Rect(settingsArea.x, settingsArea.y, settingsArea.width, layersHeight);
                 settingsSettingsArea = new Rect(settingsArea.x, settingsArea.y + settingsLayersArea.height + 10, settingsArea.width, settingsArea.height - settingsLayersArea.height - 10);
@@ -389,7 +389,7 @@ namespace lxkvcs
             // Layer selector
             int oldSelectedLayer = spawner.selectedObjectLayerIndex;
 
-            EditorGUILayout.BeginVertical();// GUILayout.Width(settingsLayersArea.width + 6));
+            EditorGUILayout.BeginVertical();
 
             if (GUI.Button(new Rect(settingsLayersArea.width - 60, 0, 60, 30), "[+] New"))
             {
@@ -404,9 +404,9 @@ namespace lxkvcs
             {
                 GUILayout.BeginHorizontal();
 
-                objectLayer.opened = CloseAllLayers(EditorUI.ToggleButton(EditorUI.StringMaxLength(objectLayer.name, 15), objectLayer.opened, string.Format("Object layer #{0}", index)));
+                objectLayer.opened = CloseAllLayers(EditorUI.ToggleButton(EditorUI.StringMaxLength(objectLayer.name, 15), objectLayer.opened, string.Format("Object layer #{0}", index)));//, -(int)settingsLayersArea.width + toolbarWidth + 4));
 
-                int operation = GUILayout.Toolbar(-1, new string[] { "↑", "↓", "+", "×" }, GUILayout.Height(24), GUILayout.Width(toolbarWidth));
+                int operation = GUILayout.Toolbar(-1, new string[] { "↑", "↓", "+", "×" }, GUILayout.Height(24), GUILayout.Width(toolbarWidth - 8));
 
 
 
