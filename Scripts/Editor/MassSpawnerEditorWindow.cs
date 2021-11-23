@@ -607,17 +607,26 @@ namespace lxkvcs
                 if (GUILayout.Button("↑", GUILayout.Width(24)))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleUp(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
                 if (GUILayout.Button("↓", GUILayout.Width(24)))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleDown(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
 
                 if (GUILayout.Button("Delete rule"))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].RemoveRule(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
 
