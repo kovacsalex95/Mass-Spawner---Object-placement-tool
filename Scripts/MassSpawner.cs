@@ -587,7 +587,7 @@ namespace lxkvcs
         PlaceObject previewObj;
         int prevX;
         int prevY;
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (Application.isEditor && !Application.isPlaying)
             {
