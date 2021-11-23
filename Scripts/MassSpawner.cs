@@ -647,7 +647,13 @@ namespace lxkvcs
 
                     previewObj = previewPrefabs[0];
 
-                    RandomVector3 Offset = previewObj._position._override ? previewObj._position : previewObjectLayer._position;
+                    RandomVector3 Offset = previewObj
+                        ._position
+                        ._override ?
+                        previewObj
+                        ._position :
+                        previewObjectLayer
+                        ._position;
 
                     float heightRatio = 1f - previewHeight;
                     Vector3 posTop = HeightmapToWorld(prevX, prevY);

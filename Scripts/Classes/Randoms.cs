@@ -238,9 +238,7 @@ namespace lxkvcs
                 GUILayout.Label(name);
 
             if (canOverride)
-            {
                 result._override = GUILayout.Toggle(result._override, result._override ? "Custom" : "Inherit", "Button", GUILayout.Width(100));
-            }
             else
                 result._override = false;
 

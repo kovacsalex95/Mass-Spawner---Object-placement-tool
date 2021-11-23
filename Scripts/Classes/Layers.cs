@@ -24,7 +24,10 @@ namespace lxkvcs
 
         public PlaceObject()
         {
-
+            _position = new RandomVector3();
+            _rotation = new RandomVector3();
+            _scale = new RandomVector3();
+            colors = new MaterialColoring[0];
         }
         public PlaceObject(PlaceObject from)
         {
