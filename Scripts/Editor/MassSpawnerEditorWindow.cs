@@ -409,6 +409,8 @@ namespace lxkvcs
                 int operation = GUILayout.Toolbar(-1, new string[] { "↑", "↓", "+", "×" }, GUILayout.Height(24), GUILayout.Width(toolbarWidth - 8));
 
 
+                GUILayout.EndHorizontal();
+
 
                 if (operation >= 0 && operation <= 3)
                     CloseAllLayers();
@@ -425,9 +427,9 @@ namespace lxkvcs
                     break;
 
                 index++;
-
-                GUILayout.EndHorizontal();
             }
+
+            EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndScrollView();
 
