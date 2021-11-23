@@ -59,6 +59,6 @@ sysinfo.txt
 crashlytics-build.properties
 
 *.meta
-*.unity
+.DS_Store
 
 generatedMaps.asset
