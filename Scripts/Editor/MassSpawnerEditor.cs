@@ -1,5 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+
+// Created by Alex Kovács
+// 2021
+//
+// Support: kovacsalex95@gmail.com
+
 using UnityEditor;
 using UnityEngine;
 

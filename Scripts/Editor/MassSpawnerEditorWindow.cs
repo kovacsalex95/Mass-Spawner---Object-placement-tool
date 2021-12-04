@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditorInternal;
 
 /*
 
@@ -48,6 +47,14 @@ namespace lxkvcs
                 return spawner.GetComponent <MassSpawner>();
             }
         }
+
+        Rect previewArea;
+        Rect settingsArea;
+        Rect settingsLayersArea;
+        Rect settingsSettingsArea;
+        Vector2 layersScrollPos;
+        Vector2 layerSettingsScrollPos = Vector2.zero;
+
 
         [MenuItem("Tools/Mass Spawner")]
         public static void Init()
@@ -98,8 +105,6 @@ namespace lxkvcs
             }
         }
 
-
-
         void CheckVariables()
         {
             if (spawner == null)
@@ -147,7 +152,6 @@ namespace lxkvcs
         }
 
 
-
         void ObjectButtons()
         {
             GUILayout.BeginHorizontal();
@@ -170,6 +174,7 @@ namespace lxkvcs
                 EditorGUILayout.Space(32);
             GUILayout.EndHorizontal();
         }
+
 
         void PreviewModeSelection()
         {
@@ -271,6 +276,7 @@ namespace lxkvcs
             */
         }
 
+
         void TabModeSelector()
         {
             int oldSelected = spawner.selectedTab;
@@ -283,6 +289,7 @@ namespace lxkvcs
             if (oldSelected != spawner.selectedTab)
                 SceneView.RepaintAll();
         }
+
 
         void TabWorldAndHeightmap()
         {
@@ -313,11 +320,6 @@ namespace lxkvcs
             EditorGUILayout.EndHorizontal();
         }
 
-        Rect previewArea;
-        Rect settingsArea;
-        Rect settingsLayersArea;
-        Rect settingsSettingsArea;
-        Vector2 layersScrollPos;
 
         void TabObjectLayers()
         {
@@ -463,7 +465,6 @@ namespace lxkvcs
                 SceneView.RepaintAll();
         }
 
-        Vector2 layerSettingsScrollPos = Vector2.zero;
         void TabObjectLayersSettings()
         {
             if (spawner.selectedObjectLayerIndex != -1)
@@ -754,7 +755,6 @@ namespace lxkvcs
         }
 
 
-
         void TabColorGroups()
         {
             if (spawner.selectedTab != MassSpawner.TAB_COLORS)
@@ -846,7 +846,6 @@ namespace lxkvcs
                 EditorGUILayout.HelpBox("Select a color group from the left side to customize its settings", MessageType.Info);
             }
         }
-
 
 
         // [UI] COLOR GROUPS
