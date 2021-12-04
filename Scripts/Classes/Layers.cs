@@ -163,14 +163,11 @@ namespace lxkvcs
 
             prefabs = new PlaceObject[target.prefabs.Length];
             for (int i = 0; i < prefabs.Length; i++)
-            {
                 prefabs[i] = new PlaceObject(target.prefabs[i]);
-            }
+
             collisionRules = new CollisionRule[target.collisionRules.Length];
             for (int i=0; i < collisionRules.Length; i++)
-            {
                 collisionRules[i] = new CollisionRule(target.collisionRules[i]);
-            }
         }
 
         public PlaceObject[] okPrefabs
