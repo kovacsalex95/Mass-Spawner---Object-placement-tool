@@ -1,5 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+
+// Created by Alex Kovács
+// 2021
+//
+// Support: kovacsalex95@gmail.com
+
 using UnityEditor;
 using UnityEngine;
 
@@ -8,13 +12,6 @@ namespace lxkvcs
     [CustomEditor(typeof(MassSpawner))]
     public class MassSpawnerEditor : Editor
     {
-        MassSpawner spawner = null;
-
-        private void Awake()
-        {
-            spawner = target as MassSpawner;
-        }
-
         public override void OnInspectorGUI()
         {
             if (GUILayout.Button("Open Mass Spawner window", GUILayout.Height(60)))

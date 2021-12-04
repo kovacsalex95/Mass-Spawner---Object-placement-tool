@@ -157,20 +157,17 @@ namespace lxkvcs
             organicity = target.organicity;
             minDistance = target.minDistance;
 
-            _position = target._position;
-            _rotation = target._rotation;
-            _scale = target._scale;
+            _position = new RandomVector3(target._position);
+            _rotation = new RandomVector3(target._rotation);
+            _scale = new RandomVector3(target._scale);
 
             prefabs = new PlaceObject[target.prefabs.Length];
             for (int i = 0; i < prefabs.Length; i++)
-            {
                 prefabs[i] = new PlaceObject(target.prefabs[i]);
-            }
+
             collisionRules = new CollisionRule[target.collisionRules.Length];
             for (int i=0; i < collisionRules.Length; i++)
-            {
                 collisionRules[i] = new CollisionRule(target.collisionRules[i]);
-            }
         }
 
         public PlaceObject[] okPrefabs
