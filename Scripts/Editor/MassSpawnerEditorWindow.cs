@@ -409,6 +409,8 @@ namespace lxkvcs
                 int operation = GUILayout.Toolbar(-1, new string[] { "↑", "↓", "+", "×" }, GUILayout.Height(24), GUILayout.Width(toolbarWidth - 8));
 
 
+                GUILayout.EndHorizontal();
+
 
                 if (operation >= 0 && operation <= 3)
                     CloseAllLayers();
@@ -425,9 +427,9 @@ namespace lxkvcs
                     break;
 
                 index++;
-
-                GUILayout.EndHorizontal();
             }
+
+            EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndScrollView();
 
@@ -605,17 +607,26 @@ namespace lxkvcs
                 if (GUILayout.Button("↑", GUILayout.Width(24)))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleUp(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
                 if (GUILayout.Button("↓", GUILayout.Width(24)))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].MoveRuleDown(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
 
                 if (GUILayout.Button("Delete rule"))
                 {
                     spawner.objectLayers[spawner.selectedObjectLayerIndex].RemoveRule(i);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                    EditorGUI.EndDisabledGroup();
                     break;
                 }
 

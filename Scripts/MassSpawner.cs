@@ -587,7 +587,7 @@ namespace lxkvcs
         PlaceObject previewObj;
         int prevX;
         int prevY;
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (Application.isEditor && !Application.isPlaying)
             {
@@ -647,7 +647,13 @@ namespace lxkvcs
 
                     previewObj = previewPrefabs[0];
 
-                    RandomVector3 Offset = previewObj._position._override ? previewObj._position : previewObjectLayer._position;
+                    RandomVector3 Offset = previewObj
+                        ._position
+                        ._override ?
+                        previewObj
+                        ._position :
+                        previewObjectLayer
+                        ._position;
 
                     float heightRatio = 1f - previewHeight;
                     Vector3 posTop = HeightmapToWorld(prevX, prevY);
