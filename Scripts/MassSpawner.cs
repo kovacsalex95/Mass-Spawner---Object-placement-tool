@@ -11,31 +11,29 @@ using Random = UnityEngine.Random;
 
 namespace lxkvcs
 {
-    [ExecuteInEditMode()]
-    public class MassSpawner : MonoBehaviour
+    public class MassSpawner
     {
-        [SerializeField]
-        public Resolutions heightmapResolution = Resolutions._1024x1024;
+        public MassSpawnerProject project = null;
 
         public Texture2D terrainHeight = null;
         public Texture2D terrainSlope = null;
         public Texture2D terrain3D = null;
 
-        public Vector2 terrainOffset = new Vector2(500, 500);
-        public Vector2 terrainSize = new Vector2(1000, 1000);
-        public float terrainTop = 500f;
-        public float terrainBottom = 0;
-
-        public LayerMask includeMask;
-        public LayerMask excludeMask;
+        public MassSpawner(MassSpawnerProject project)
+        {
+            this.project = project;
+        }
 
         public LayerMask surveyMask
         {
             get
             {
-                LayerMask result = includeMask;
+                if (project == null)
+                    return new LayerMask();
+                
+                LayerMask result = project.includeMask;
 
-                bool[] excludeLayers = Util.LayerMaskHasLayers(excludeMask);
+                bool[] excludeLayers = Util.LayerMaskHasLayers(project.excludeMask);
                 for (int i = 0; i < excludeLayers.Length; i++)
                 {
                     if (excludeLayers[i] && !Util.LayerMaskContainsLayer(result, i))
@@ -46,11 +44,25 @@ namespace lxkvcs
             }
         }
 
-        public ObjectLayer[] objectLayers = null;
+        Transform _transform = null;
+        public Transform transform
+        {
+            get
+            {
+                if (_transform == null)
+                {
+                    _transform = new GameObject("MassSpawner Objects").transform;
+                    _transform.position = _transform.eulerAngles = Vector3.zero;
+                    _transform.localScale = Vector3.one;
+                }
+
+                return _transform.transform;
+            }
+        }
+
         public int oldSelectedObjectLayerIndex = -1;
         public int selectedObjectLayerIndex = -1;
 
-        public ColorGroup[] colorGroups = null;
         public int selectedColorGroupIndex = -1;
 
         public PreviewMode preview = PreviewMode.Heightmap;
@@ -83,26 +95,89 @@ namespace lxkvcs
         public bool mapsChecked = false;
 
 
+        // Pass trough
+        public ObjectLayer[] objectLayers
+        {
+            get
+            {
+                if (project == null)
+                    return null;
+                if (project.objectLayers == null)
+                    project.objectLayers = new ObjectLayer[0];
+                return project.objectLayers;
+            }
+            set { project.objectLayers = value; }
+        }
+        public ColorGroup[] colorGroups
+        {
+            get
+            {
+                if (project == null)
+                    return null;
+                if (project.colorGroups == null)
+                    project.colorGroups = new ColorGroup[0];
+                return project.colorGroups;
+            }
+            set { project.colorGroups = value; }
+        }
+
+        public float terrainTop
+        {
+            get => project.terrainTop;
+            set { project.terrainTop = value; }
+        }
+        public float terrainBottom
+        {
+            get => project.terrainBottom;
+            set { project.terrainBottom = value; }
+        }
+        public Vector2 terrainSize
+        {
+            get => project.terrainSize;
+            set { project.terrainSize = value; }
+        }
+        public Vector2 terrainOffset
+        {
+            get => project.terrainOffset;
+            set { project.terrainOffset = value; }
+        }
+        public Resolutions heightmapResolution
+        {
+            get => project.heightmapResolution;
+            set { project.heightmapResolution = value; }
+        }
+        public LayerMask includeMask
+        {
+            get => project.includeMask;
+            set { project.includeMask = value; }
+        }
+        public LayerMask excludeMask
+        {
+            get => project.excludeMask;
+            set { project.excludeMask = value; }
+        }
+
+
         // HEIGHTMAP
         public void GenerateHeightmap()
         {
-            this.terrainHeight = new Texture2D((int)heightmapResolution, (int)heightmapResolution, TextureFormat.RGBAFloat, false);
+            this.terrainHeight = new Texture2D((int)project.heightmapResolution, (int)project.heightmapResolution, TextureFormat.RGBAFloat, false);
 
-            float terrainHeight = terrainTop - terrainBottom;
+            float terrainHeight = project.terrainTop - project.terrainBottom;
             if (terrainHeight > 0)
             {
                 RaycastHit hit;
                 Color nullColor = new Color(0, 0, 0, 0);
 
-                for (int x = 0; x < (int)heightmapResolution; x++)
+                for (int x = 0; x < (int)project.heightmapResolution; x++)
                 {
-                    for (int y = 0; y < (int)heightmapResolution; y++)
+                    for (int y = 0; y < (int)project.heightmapResolution; y++)
                     {
                         Vector3 pos = HeightmapToWorld(x, y);
                         Color c = nullColor;
                         if (Physics.Raycast(pos, Vector3.down, out hit, terrainHeight + 1, surveyMask))
                         {
-                            bool isExcluded = Util.LayerMaskContainsLayer(excludeMask, hit.collider.gameObject.layer);
+                            bool isExcluded = Util.LayerMaskContainsLayer(project.excludeMask, hit.collider.gameObject.layer);
                             if (!isExcluded)
                             {
                                 float distanceRatio = 1f - Mathf.Clamp01(hit.distance / terrainHeight);
@@ -125,14 +200,14 @@ namespace lxkvcs
 
         public Vector3 HeightmapToWorld(int xx, int yy)
         {
-            Vector3 centerTop = transform.position + new Vector3(terrainOffset.x, 0, terrainOffset.y) + Vector3.up * terrainTop;
-            Vector3 centerCorner = centerTop + new Vector3(-terrainSize.x / 2, 0, -terrainSize.y / 2);
+            Vector3 centerTop = transform.position + new Vector3(project.terrainOffset.x, 0, project.terrainOffset.y) + Vector3.up * project.terrainTop;
+            Vector3 centerCorner = centerTop + new Vector3(-project.terrainSize.x / 2, 0, -project.terrainSize.y / 2);
 
-            float xRatio = (float)xx / (float)heightmapResolution;
-            float yRatio = (float)yy / (float)heightmapResolution;
+            float xRatio = (float)xx / (float)project.heightmapResolution;
+            float yRatio = (float)yy / (float)project.heightmapResolution;
 
-            float absX = terrainSize.x * xRatio;
-            float absY = terrainSize.y * yRatio;
+            float absX = project.terrainSize.x * xRatio;
+            float absY = project.terrainSize.y * yRatio;
 
             return centerCorner + new Vector3(absX, 0, absY);
         }
@@ -142,18 +217,18 @@ namespace lxkvcs
         // SLOPEMAP
         public void GenerateTerrainSlope()
         {
-            float heightRatioX = (terrainTop - terrainBottom) / terrainSize.x;
-            float heightRatioY = (terrainTop - terrainBottom) / terrainSize.y;
+            float heightRatioX = (project.terrainTop - project.terrainBottom) / project.terrainSize.x;
+            float heightRatioY = (project.terrainTop - project.terrainBottom) / project.terrainSize.y;
 
             float SIN45 = 0.707106781f;
 
             float biggestSlope = 0f;
 
-            terrainSlope = new Texture2D((int)heightmapResolution, (int)heightmapResolution, TextureFormat.RGBAFloat, false);
-            terrain3D = new Texture2D((int)heightmapResolution, (int)heightmapResolution, TextureFormat.RGBAFloat, false);
-            for (int x = 0; x < (int)heightmapResolution; x++)
+            terrainSlope = new Texture2D((int)project.heightmapResolution, (int)project.heightmapResolution, TextureFormat.RGBAFloat, false);
+            terrain3D = new Texture2D((int)project.heightmapResolution, (int)project.heightmapResolution, TextureFormat.RGBAFloat, false);
+            for (int x = 0; x < (int)project.heightmapResolution; x++)
             {
-                for (int y = 0; y < (int)heightmapResolution; y++)
+                for (int y = 0; y < (int)project.heightmapResolution; y++)
                 {
                     Color targetPixel = new Color(0, 0, 0, 0);
                     Color target3D = new Color(0, 0, 0, 0);
@@ -164,16 +239,16 @@ namespace lxkvcs
                         float height = terrainPixel.r;
 
                         // Steepness
-                        float xDiff = (x <= (int)heightmapResolution - 1) ? terrainPixel.r - terrainHeight.GetPixel(x + 1, y).r : 0;
+                        float xDiff = (x <= (int)project.heightmapResolution - 1) ? terrainPixel.r - terrainHeight.GetPixel(x + 1, y).r : 0;
                         float xAngle = Mathf.Abs(xDiff) / heightRatioX;
                         float xSlope = Mathf.Atan(xAngle) * Mathf.Rad2Deg / 45f + 0.5f;
 
-                        float yDiff = (y <= (int)heightmapResolution - 1) ? terrainPixel.r - terrainHeight.GetPixel(x, y + 1).r : 0;
+                        float yDiff = (y <= (int)project.heightmapResolution - 1) ? terrainPixel.r - terrainHeight.GetPixel(x, y + 1).r : 0;
                         float yAngle = Mathf.Abs(yDiff) / heightRatioY;
                         float ySlope = Mathf.Atan(yAngle) * Mathf.Rad2Deg / 45f + 0.5f;
 
                         float dDiff = 0;
-                        if (x <= (int)heightmapResolution - 1 && y <= (int)heightmapResolution - 1)
+                        if (x <= (int)project.heightmapResolution - 1 && y <= (int)project.heightmapResolution - 1)
                         {
                             float fullD = terrainPixel.r - terrainHeight.GetPixel(x + 1, y + 1).r;
                             float origD = terrainPixel.r - terrainHeight.GetPixel(x, y).r;
@@ -187,7 +262,7 @@ namespace lxkvcs
                         distance -= 0.5f;
                         distance = Mathf.Abs(distance) * 2f;
 
-                        distance *= (float)heightmapResolution / (float)Resolutions._512x512;
+                        distance *= (float)project.heightmapResolution / (float)Resolutions._512x512;
                         distance = Mathf.Clamp01(distance);
 
                         if (distance > biggestSlope)
@@ -218,9 +293,9 @@ namespace lxkvcs
             if (biggestSlope <= 0)
                 return;
 
-            for (int x = 0; x < (int)heightmapResolution; x++)
+            for (int x = 0; x < (int)project.heightmapResolution; x++)
             {
-                for (int y = 0; y < (int)heightmapResolution; y++)
+                for (int y = 0; y < (int)project.heightmapResolution; y++)
                 {
                     float currentValue = terrainSlope.GetPixel(x, y).r;
                     float remapValue = currentValue / biggestSlope;
@@ -236,7 +311,7 @@ namespace lxkvcs
         // MAPS SAVING
         void SaveMapsToTextureArray()
         {
-            Texture2DArray mapsArray = new Texture2DArray((int)heightmapResolution, (int)heightmapResolution, 3, TextureFormat.RGBAFloat, false);
+            Texture2DArray mapsArray = new Texture2DArray((int)project.heightmapResolution, (int)project.heightmapResolution, 3, TextureFormat.RGBAFloat, false);
 
             mapsArray.SetPixels(terrainHeight.GetPixels(), 0);
             mapsArray.SetPixels(terrainSlope.GetPixels(), 1);
@@ -282,7 +357,7 @@ namespace lxkvcs
         // OBJECTS
         public void GenerateObjectPoints()
         {
-            foreach (ObjectLayer l in objectLayers)
+            foreach (ObjectLayer l in project.objectLayers)
             {
                 GenerateObjectPoints(l);
             }
@@ -296,11 +371,11 @@ namespace lxkvcs
             if (placementComputeShader == null)
                 CheckPreviewTextures();
 
-            int placePointsCount = Util.PlacementPointCount((int)heightmapResolution, layer.everyN);
+            int placePointsCount = Util.PlacementPointCount((int)project.heightmapResolution, layer.everyN);
             PlacementPoint[] placePoints = new PlacementPoint[placePointsCount];
 
 
-            layer.objectPlaces = new RenderTexture((int)heightmapResolution, (int)heightmapResolution, 0, RenderTextureFormat.ARGB32);
+            layer.objectPlaces = new RenderTexture((int)project.heightmapResolution, (int)project.heightmapResolution, 0, RenderTextureFormat.ARGB32);
             layer.objectPlaces.enableRandomWrite = true;
             layer.objectPlaces.filterMode = FilterMode.Point;
             
@@ -309,7 +384,7 @@ namespace lxkvcs
 
             int kernelIndex = placementComputeShader.FindKernel("CSClear");
             placementComputeShader.SetTexture(kernelIndex, "PlacementMap", layer.objectPlaces);
-            placementComputeShader.Dispatch(kernelIndex, (int)heightmapResolution / 8, (int)heightmapResolution / 8, 1);
+            placementComputeShader.Dispatch(kernelIndex, (int)project.heightmapResolution / 8, (int)project.heightmapResolution / 8, 1);
 
 
             ComputeBuffer placementPointsBuffer = new ComputeBuffer(placePointsCount, PlacementPoint.stride);
@@ -318,12 +393,12 @@ namespace lxkvcs
 
             kernelIndex = placementComputeShader.FindKernel("CSMain");
             placementComputeShader.SetTexture(kernelIndex, "PlacementMap", layer.objectPlaces);
-            placementComputeShader.SetFloat("TextureSize", (float)heightmapResolution);
+            placementComputeShader.SetFloat("TextureSize", (float)project.heightmapResolution);
             placementComputeShader.SetFloat("AngleOffset", layer.angleOffset);
             placementComputeShader.SetFloat("EveryN", layer.everyN);
             placementComputeShader.SetFloat("Organicity", layer.organicity);
             placementComputeShader.SetBuffer(kernelIndex, "Points", placementPointsBuffer);
-            placementComputeShader.Dispatch(kernelIndex, (int)heightmapResolution / 8, (int)heightmapResolution / 8, 1);
+            placementComputeShader.Dispatch(kernelIndex, (int)project.heightmapResolution / 8, (int)project.heightmapResolution / 8, 1);
 
             placementPointsBuffer.GetData(placePoints);
 
@@ -334,7 +409,7 @@ namespace lxkvcs
 
         public void ResetPlacementTextures()
         {
-            foreach (ObjectLayer layer in objectLayers)
+            foreach (ObjectLayer layer in project.objectLayers)
                 ResetLayerPlacementTextures(layer);
         }
 
@@ -359,19 +434,19 @@ namespace lxkvcs
             int placedCount = 0;
             ClearObjects();
 
-            if (objectLayers.Length == 0)
+            if (project.objectLayers.Length == 0)
                 return;
 
-            for (int i = 0; i < objectLayers.Length; i++)
+            for (int i = 0; i < project.objectLayers.Length; i++)
             {
-                previewObjectLayer = objectLayers[selectedObjectLayerIndex];
+                previewObjectLayer = project.objectLayers[selectedObjectLayerIndex];
                 if (previewObjectLayer.objectPoints == null || previewObjectLayer.objectPoints.Length == 0)
                     GenerateObjectPoints(previewObjectLayer);
             }
 
             if (terrainHeight != null)
             {
-                foreach (ObjectLayer layer in objectLayers)
+                foreach (ObjectLayer layer in project.objectLayers)
                 {
                     foreach(PlacementPoint point in layer.objectPoints)
                     {
@@ -420,7 +495,7 @@ namespace lxkvcs
 
                 float heightRatio = 1f - height;
                 Vector3 posTop = HeightmapToWorld(x, y);
-                Vector3 pos = posTop + Vector3.down * heightRatio * (terrainTop - terrainBottom) + Offset.value;
+                Vector3 pos = posTop + Vector3.down * heightRatio * (project.terrainTop - project.terrainBottom) + Offset.value;
 
                 bool place = false;
                 RaycastHit[] collisions;
@@ -478,7 +553,7 @@ namespace lxkvcs
                                 {
                                     string materialName = coloring.material.name;
                                     string shaderName = coloring.material.shader.name;
-                                    Color color = colorGroups[coloring.colorGroup].value;
+                                    Color color = project.colorGroups[coloring.colorGroup].value;
 
                                     for (int i = 0; i < renderers.Length; i++)
                                     {
@@ -511,7 +586,7 @@ namespace lxkvcs
 
         bool ColorGroupExists(int index)
         {
-            return colorGroups == null || colorGroups.Length == 0 ? false : (index >= 0 && index < colorGroups.Length);
+            return project.colorGroups == null || project.colorGroups.Length == 0 ? false : (index >= 0 && index < project.colorGroups.Length);
         }
 
 
@@ -519,10 +594,10 @@ namespace lxkvcs
         // PREVIEW
         void CheckPreviewTextures()
         {
-            if (generatedPreviewTexturesResolution == (int)heightmapResolution && heightmapPreviewTexture != null && layerPreviewTexture != null && previewComputeShader != null && placementComputeShader != null)
+            if (generatedPreviewTexturesResolution == (int)project.heightmapResolution && heightmapPreviewTexture != null && layerPreviewTexture != null && previewComputeShader != null && placementComputeShader != null)
                 return;
 
-            generatedPreviewTexturesResolution = (int)heightmapResolution;
+            generatedPreviewTexturesResolution = (int)project.heightmapResolution;
 
             heightmapPreviewTexture = new RenderTexture(generatedPreviewTexturesResolution, generatedPreviewTexturesResolution, 0, RenderTextureFormat.ARGB32);
             heightmapPreviewTexture.enableRandomWrite = true;
@@ -564,9 +639,9 @@ namespace lxkvcs
             previewComputeShader.SetTexture(kernelIndex, "LayerResult", layerPreviewTexture);
             previewComputeShader.SetTexture(kernelIndex, "Heightmap", terrainHeight);
             previewComputeShader.SetTexture(kernelIndex, "SlopeMap", terrainSlope);
-            previewComputeShader.SetTexture(kernelIndex, "PlacementMap", objectLayers[selectedObjectLayerIndex].objectPlaces);
-            previewComputeShader.SetVector("HeightRange", new Vector4(objectLayers[selectedObjectLayerIndex].from, objectLayers[selectedObjectLayerIndex].to, 0, 0));
-            previewComputeShader.SetVector("SlopeRange", new Vector4(objectLayers[selectedObjectLayerIndex].minSlope, objectLayers[selectedObjectLayerIndex].maxSlope, 0, 0));
+            previewComputeShader.SetTexture(kernelIndex, "PlacementMap", project.objectLayers[selectedObjectLayerIndex].objectPlaces);
+            previewComputeShader.SetVector("HeightRange", new Vector4(project.objectLayers[selectedObjectLayerIndex].from, project.objectLayers[selectedObjectLayerIndex].to, 0, 0));
+            previewComputeShader.SetVector("SlopeRange", new Vector4(project.objectLayers[selectedObjectLayerIndex].minSlope, project.objectLayers[selectedObjectLayerIndex].maxSlope, 0, 0));
             previewComputeShader.SetBool("ShowPlacement", showPlacement);
 
             previewComputeShader.Dispatch(kernelIndex, heightmapPreviewTexture.width / 8, heightmapPreviewTexture.height / 8, 1);
@@ -594,8 +669,8 @@ namespace lxkvcs
                 // World bounds
                 if (selectedTab == TAB_WORLD_HEIGHTMAP)
                 {
-                    Vector3 worldCenter = transform.position + Vector3.up * ((terrainBottom + terrainTop) / 2f) + new Vector3(terrainOffset.x, 0, terrainOffset.y);
-                    Vector3 worldSize = new Vector3(terrainSize.x, terrainTop - terrainBottom, terrainSize.y);
+                    Vector3 worldCenter = transform.position + Vector3.up * ((project.terrainBottom + project.terrainTop) / 2f) + new Vector3(project.terrainOffset.x, 0, project.terrainOffset.y);
+                    Vector3 worldSize = new Vector3(project.terrainSize.x, project.terrainTop - project.terrainBottom, project.terrainSize.y);
                     Gizmos.color = Color.green;
                     Gizmos.DrawWireCube(worldCenter, worldSize);
                 }
@@ -604,10 +679,10 @@ namespace lxkvcs
                 if (selectedTab != TAB_LAYERS)
                     return;
 
-                if (objectLayers == null || objectLayers.Length == 0 || !showPlacement || selectedObjectLayerIndex == -1 || terrainHeight == null || transform.childCount != 0)
+                if (project.objectLayers == null || project.objectLayers.Length == 0 || !showPlacement || selectedObjectLayerIndex == -1 || terrainHeight == null || transform.childCount != 0)
                     return;
 
-                previewObjectLayer = objectLayers[selectedObjectLayerIndex];
+                previewObjectLayer = project.objectLayers[selectedObjectLayerIndex];
                 if (previewObjectLayer.objectPoints == null || previewObjectLayer.objectPoints.Length == 0)
                 {
                     GenerateObjectPoints(previewObjectLayer);
@@ -657,7 +732,7 @@ namespace lxkvcs
 
                     float heightRatio = 1f - previewHeight;
                     Vector3 posTop = HeightmapToWorld(prevX, prevY);
-                    Vector3 pos = posTop + Vector3.down * heightRatio * (terrainTop - terrainBottom) + Offset.value;
+                    Vector3 pos = posTop + Vector3.down * heightRatio * (project.terrainTop - project.terrainBottom) + Offset.value;
 
                     Gizmos.DrawCube(pos + Vector3.up * 1.5f, Vector3.one * 4);
                 }
