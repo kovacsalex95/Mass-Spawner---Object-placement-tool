@@ -32,22 +32,6 @@ namespace lxkvcs
         Texture2D[] icons = null;
         Texture2D objectIcon = null;
 
-        static MassSpawner target
-        {
-            get
-            {
-                MassSpawner spawner = GameObject.FindObjectOfType<MassSpawner>();
-                if (spawner == null)
-                {
-                    GameObject newObject = new GameObject("Mass Spawner");
-                    newObject.transform.position = Vector3.zero;
-
-                    return newObject.AddComponent<MassSpawner>();
-                }
-                return spawner.GetComponent <MassSpawner>();
-            }
-        }
-
         Rect previewArea;
         Rect settingsArea;
         Rect settingsLayersArea;
@@ -58,7 +42,7 @@ namespace lxkvcs
 
         [MenuItem("Tools/Mass Spawner")]
         public static void Init()
-        {
+        { 
             MassSpawnerEditorWindow window = (MassSpawnerEditorWindow)EditorWindow.GetWindow(typeof(MassSpawnerEditorWindow));
             window.titleContent.text = "Mass Spawner";
             window.Show();
@@ -70,6 +54,16 @@ namespace lxkvcs
             {
                 GUILayout.Label("Window is too small to operate!", GUILayout.Height(100));
                 return;
+            }
+
+            // TODO
+            if (spawner == null)
+            {
+                MassSpawnerProject project = (MassSpawnerProject)EditorGUILayout.ObjectField(null, typeof(MassSpawnerProject), false);
+                if (project != null)
+                    spawner = new MassSpawner(project);
+                else
+                    return;
             }
 
             // variables
@@ -107,9 +101,6 @@ namespace lxkvcs
 
         void CheckVariables()
         {
-            if (spawner == null)
-                spawner = target;
-
             if (assetsFolder == "")
                 assetsFolder = Util.AssetFolder;
 
@@ -135,12 +126,6 @@ namespace lxkvcs
 
             if (spawner.selectedSettingsTab == -1)
                 spawner.selectedSettingsTab = MassSpawner.STAB_PLACEMENT;
-
-
-            if (spawner.objectLayers == null)
-                spawner.objectLayers = new ObjectLayer[0];
-            if (spawner.colorGroups == null)
-                spawner.colorGroups = new ColorGroup[0];
 
 
             if ((spawner.terrainHeight == null || spawner.terrainSlope == null || spawner.terrain3D == null) && !spawner.mapsChecked)
