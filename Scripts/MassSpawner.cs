@@ -4,6 +4,7 @@
 //
 // Support: kovacsalex95@gmail.com
 
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -22,6 +23,10 @@ namespace lxkvcs
         public MassSpawner(MassSpawnerProject project)
         {
             this.project = project;
+        }
+        public MassSpawner()
+        {
+            CreateProject();
         }
 
         public LayerMask surveyMask
@@ -51,9 +56,15 @@ namespace lxkvcs
             {
                 if (_transform == null)
                 {
-                    _transform = new GameObject("MassSpawner Objects").transform;
-                    _transform.position = _transform.eulerAngles = Vector3.zero;
-                    _transform.localScale = Vector3.one;
+                    GameObject obj = GameObject.Find("MassSpawner Objects");
+                    if (obj == null)
+                    {
+                        _transform = new GameObject("MassSpawner Objects").transform;
+                        _transform.position = _transform.eulerAngles = Vector3.zero;
+                        _transform.localScale = Vector3.one;
+                    }
+                    else
+                        _transform = obj.transform;
                 }
 
                 return _transform.transform;
@@ -155,6 +166,19 @@ namespace lxkvcs
         {
             get => project.excludeMask;
             set { project.excludeMask = value; }
+        }
+
+
+        // Project
+        public void CreateProject()
+        {
+            MassSpawnerProject project = new MassSpawnerProject();
+
+            string assetPath = Util.AssetFolder + "/project-" + new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString() + ".asset";
+
+            AssetDatabase.CreateAsset(project, assetPath);
+
+            this.project = (MassSpawnerProject)AssetDatabase.LoadAssetAtPath(assetPath, typeof(MassSpawnerProject));
         }
 
 
@@ -307,7 +331,6 @@ namespace lxkvcs
         }
 
 
-
         // MAPS SAVING
         void SaveMapsToTextureArray()
         {
@@ -320,6 +343,7 @@ namespace lxkvcs
             mapsArray.Apply();
 
             AssetDatabase.CreateAsset(mapsArray, Util.AssetFolder + "/generatedMaps.asset");
+
         }
 
         public void TryToLoadSavedMaps()
