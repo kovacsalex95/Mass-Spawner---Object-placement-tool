@@ -50,13 +50,8 @@ namespace lxkvcs
 
         public void OnGUI()
         {
-            if (position.width < 350 || position.height < 350)
-            {
-                GUILayout.Label("Window is too small to operate!", GUILayout.Height(100));
-                return;
-            }
 
-            // TODO
+            // TODO: Better look
             if (spawner == null)
             {
                 MassSpawnerProject project = (MassSpawnerProject)EditorGUILayout.ObjectField(null, typeof(MassSpawnerProject), false);
@@ -64,6 +59,14 @@ namespace lxkvcs
                     spawner = new MassSpawner(project);
                 else
                     return;
+            }
+
+            // TODO: Project changing
+
+            if (position.width < 300 || position.height < 300)
+            {
+                GUILayout.Label("Window is too small to operate!", GUILayout.Height(100));
+                return;
             }
 
             // variables
