@@ -62,14 +62,39 @@ namespace lxkvcs
         {
 
             // TODO: Better look
-            if (spawner == null)
+
+            if (spawner == null || spawner.project == null)
             {
+                float selectorHeight = 100;
+                GUILayout.Label(" ", GUILayout.Height((position.height - selectorHeight) / 2));
+                GUILayout.Label("Please select a Project asset to start", GUILayout.Height(40));
                 MassSpawnerProject project = (MassSpawnerProject)EditorGUILayout.ObjectField(null, typeof(MassSpawnerProject), false);
+
                 if (project != null)
-                    spawner = new MassSpawner(project);
-                else
-                    return;
+                {
+                    if (spawner == null)
+                        spawner = new MassSpawner(project);
+                    else
+                        spawner.project = project;
+                }
+
+                else if (GUILayout.Button("Create new project"))
+                    spawner = new MassSpawner();
             }
+            else
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Project", GUILayout.Height(30));
+                spawner.project = (MassSpawnerProject)EditorGUILayout.ObjectField(spawner.project, typeof(MassSpawnerProject), false);
+
+                if (GUILayout.Button("Create new"))
+                    spawner.CreateProject();
+
+                GUILayout.EndHorizontal();
+            }
+
+            if (spawner == null || spawner.project == null)
+                return;
 
             // TODO: Project changing
 
@@ -326,7 +351,7 @@ namespace lxkvcs
 
             bool isHorizontal = position.width > position.height;
 
-            Rect usefulSpace = new Rect(0, 35, position.width, position.height - 35);
+            Rect usefulSpace = new Rect(0, 65, position.width, position.height - 65);
 
             float previewHeight = Mathf.Clamp(usefulSpace.height / 2, 300, position.width);
 
