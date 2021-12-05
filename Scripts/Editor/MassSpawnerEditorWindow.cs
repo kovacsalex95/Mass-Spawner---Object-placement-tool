@@ -12,10 +12,15 @@ using UnityEditor;
 
     TODO:
 
+    Fixes:
+    -   Fix gizmos
+
     Project management:
     -   Allow user to change projects
     -   Per project map generation
-    -   Fix gizmos
+
+    Scene management:
+    -   Select target gameobject transform
 
     Features:
     -   Terrain normal as rotation (with ratio)
