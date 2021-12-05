@@ -9,24 +9,24 @@ public class MassSpawnerProject : ScriptableObject
     public Resolutions heightmapResolution = Resolutions._1024x1024;
 
     // World boundaries
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public Vector2 terrainOffset = new Vector2(500, 500);
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public Vector2 terrainSize = new Vector2(1000, 1000);
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public float terrainTop = 500f;
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public float terrainBottom = 0;
 
     // Raycast masks
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public LayerMask includeMask;
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public LayerMask excludeMask;
 
     // Object and Color groups
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public ObjectLayer[] objectLayers = null;
-    [SerializeField]
+    [SerializeField, HideInInspector]
     public ColorGroup[] colorGroups = null;
 }
