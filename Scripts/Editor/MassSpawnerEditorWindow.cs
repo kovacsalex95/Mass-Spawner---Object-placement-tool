@@ -12,6 +12,11 @@ using UnityEditor;
 
     TODO:
 
+    Project management:
+    -   Allow user to change projects
+    -   Per project map generation
+    -   Fix gizmos
+
     Features:
     -   Terrain normal as rotation (with ratio)
 
