@@ -16,7 +16,6 @@ using UnityEditor;
     -   Fix gizmos
 
     Project management:
-    -   Allow user to change projects
     -   Per project map generation
 
     Scene management:
